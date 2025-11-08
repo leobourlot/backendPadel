@@ -1,0 +1,36 @@
+{
+  "name": "padel-backend",
+  "version": "1.0.0",
+  "description": "Backend para sistema de reservas de pádel",
+  "scripts": {
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "build": "nest build"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/jwt": "^10.0.0",
+    "@nestjs/mapped-types": "^2.1.0",
+    "@nestjs/passport": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "mysql2": "^3.6.0",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/node": "^20.0.0",
+    "@types/passport-jwt": "^3.0.9",
+    "typescript": "^5.0.0"
+  }
+}
