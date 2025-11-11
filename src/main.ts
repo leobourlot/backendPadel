@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors({
     // origin: 'http://localhost:3001', // URL de tu frontend React
     origin: '*', // URL de tu frontend React
-    credentials: true,
+    credentials: false,
   });
 
   app.useGlobalPipes(
