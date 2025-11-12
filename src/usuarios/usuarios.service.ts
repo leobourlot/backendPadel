@@ -19,7 +19,7 @@ export class UsuariosService {
 
     async findAll(): Promise<Usuario[]> {
         return await this.usuariosRepository.find({
-            select: ['idUsuario', 'dni', 'email', 'nombre', 'apellido', 'telefono', 'activo'],
+            select: ['idUsuario', 'dni', 'email', 'nombre', 'apellido', 'telefono', 'rol', 'activo'],
         });
     }
 
