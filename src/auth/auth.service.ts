@@ -52,6 +52,12 @@ export class AuthService {
             throw new UnauthorizedException('Credenciales incorrectas');
         }
 
+        // ✅ VALIDAR QUE EL USUARIO ESTÉ ACTIVO
+        if (!usuario.activo) {
+            console.log('❌ Usuario inactivo - Acceso denegado');
+            throw new UnauthorizedException('Usuario desactivado. Contacta al administrador.');
+        }
+
         const isPasswordValid = await bcrypt.compare(password, usuario.clave);
         if (!isPasswordValid) {
             throw new UnauthorizedException('Credenciales incorrectas');
@@ -68,11 +74,10 @@ export class AuthService {
     async validateUser(userId: number) {
         const usuario = await this.usuariosService.findOne(userId);
 
-        console.log('👤 validateUser:', {
-            id: usuario?.idUsuario,
-            email: usuario?.email,
-            rol: usuario?.rol  // ← Verificar que exista
-        });
+        if (!usuario.activo) {
+            console.log('❌ Usuario inactivo en validateUser');
+            throw new UnauthorizedException('Usuario desactivado');
+        }
 
         return usuario;
 
