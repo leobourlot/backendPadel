@@ -28,6 +28,5 @@ export class CreateUsuarioDto {
 
     @IsEnum(UserRole)
     @IsOptional()
-    @IsNotEmpty()
     rol: UserRole
 }
