@@ -9,6 +9,11 @@ import {
 import { Exclude } from 'class-transformer';
 import { Reserva } from '../../reservas/entities/reserva.entity';
 
+export enum UserRole {
+    JUGADOR = 'jugador',
+    ADMIN = 'admin',
+}
+
 @Entity('usuarios')
 export class Usuario {
     @PrimaryGeneratedColumn()
@@ -32,6 +37,13 @@ export class Usuario {
     @Column()
     @Exclude()
     clave: string;
+
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.JUGADOR, // ← Por defecto jugador
+    })
+    rol: UserRole;
 
     @Column({ default: true })
     activo: boolean;

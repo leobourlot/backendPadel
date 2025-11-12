@@ -8,6 +8,7 @@ import * as bcrypt from 'bcryptjs';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UserRole } from '../usuarios/entities/usuario.entity';
 
 @Injectable()
 export class AuthService {
@@ -19,27 +20,22 @@ export class AuthService {
     async register(registerDto: RegisterDto) {
         const { dni, email, clave, ...userData } = registerDto;
 
-        // Verificar si el usuario ya existe
-        const existingUser = await this.usuariosService.findByDniOrEmail(
-            dni,
-            email,
-        );
+        const existingUser = await this.usuariosService.findByDniOrEmail(dni, email);
         if (existingUser) {
             throw new ConflictException('El DNI o email ya está registrado');
         }
 
-        // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(clave, 10);
 
-        // Crear usuario
+        // Crear usuario SIEMPRE como JUGADOR
         const usuario = await this.usuariosService.create({
             dni,
             email,
             clave: hashedPassword,
+            rol: UserRole.JUGADOR, // ← Forzar rol jugador
             ...userData,
         });
 
-        // Generar token
         const token = this.generateToken(usuario);
 
         return {
@@ -51,19 +47,16 @@ export class AuthService {
     async login(loginDto: LoginDto) {
         const { dni, password } = loginDto;
 
-        // Buscar usuario
         const usuario = await this.usuariosService.findByDni(dni);
         if (!usuario) {
             throw new UnauthorizedException('Credenciales incorrectas');
         }
 
-        // Verificar contraseña
         const isPasswordValid = await bcrypt.compare(password, usuario.clave);
         if (!isPasswordValid) {
             throw new UnauthorizedException('Credenciales incorrectas');
         }
 
-        // Generar token
         const token = this.generateToken(usuario);
 
         return {
@@ -81,6 +74,7 @@ export class AuthService {
             sub: usuario.idUsuario,
             dni: usuario.dni,
             email: usuario.email,
+            rol: usuario.rol, // ← Incluir rol en el token
         };
         return this.jwtService.sign(payload);
     }
