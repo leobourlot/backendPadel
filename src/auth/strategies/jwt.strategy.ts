@@ -18,6 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (!usuario) {
             throw new UnauthorizedException();
         }
+        
+        console.log('🔐 Usuario validado en JWT:', {
+            id: usuario.idUsuario,
+            email: usuario.email,
+            rol: usuario.rol  // ← Verificar que el rol esté aquí
+        });
+        
         return usuario;
     }
 }

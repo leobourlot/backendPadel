@@ -66,7 +66,16 @@ export class AuthService {
     }
 
     async validateUser(userId: number) {
-        return await this.usuariosService.findOne(userId);
+        const usuario = await this.usuariosService.findOne(userId);
+
+        console.log('👤 validateUser:', {
+            id: usuario?.idUsuario,
+            email: usuario?.email,
+            rol: usuario?.rol  // ← Verificar que exista
+        });
+
+        return usuario;
+
     }
 
     private generateToken(usuario: any) {
@@ -76,11 +85,13 @@ export class AuthService {
             email: usuario.email,
             rol: usuario.rol, // ← Incluir rol en el token
         };
+
         return this.jwtService.sign(payload);
     }
 
     private sanitizeUser(usuario: any) {
         const { clave, ...result } = usuario;
+
         return result;
     }
 }
