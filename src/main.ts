@@ -7,7 +7,7 @@ async function bootstrap() {
 
   app.enableCors({
     // origin: 'http://localhost:3001', // URL de tu frontend React
-    origin: ['http://localhost:3001', 'https://slateblue-locust-897822.hostingersite.com'],
+    origin: ['http://localhost:3001', 'https://slateblue-locust-897822.hostingersite.com', 'https://lightyellow-echidna-660344.hostingersite.com'],
     credentials: true,    
   });
 
