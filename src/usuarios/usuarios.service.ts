@@ -35,11 +35,11 @@ export class UsuariosService {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
 
-        console.log('📊 Usuario encontrado:', {
-            id: usuario.idUsuario,
-            email: usuario.email,
-            rol: usuario.rol  // ← Debe aparecer aquí
-        });
+        // console.log('📊 Usuario encontrado:', {
+        //     id: usuario.idUsuario,
+        //     email: usuario.email,
+        //     rol: usuario.rol  // ← Debe aparecer aquí
+        // });
 
         return usuario;
     }
