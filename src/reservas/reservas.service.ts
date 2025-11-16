@@ -104,7 +104,7 @@ export class ReservasService {
         const fechaInicioDate = new Date(fechaInicio);
         if (fechaInicioDate.getDay() !== diaSemana) {
             console.log('fechaInicio es: ', fechaInicio)
-            console.log('fechaInicio.GetDay es: ', fechaInicio.getDay())
+            console.log('fechaInicio.GetDay es: ', fechaInicioDate.getDay())
             console.log('diaSemana es: ', diaSemana)
             throw new BadRequestException('El día de la semana no coincide con la fecha de inicio');
         }
