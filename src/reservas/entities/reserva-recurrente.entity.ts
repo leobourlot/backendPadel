@@ -11,13 +11,13 @@ import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { Cancha } from '../../canchas/entities/cancha.entity';
 
 export enum DiaSemana {
-    LUNES = 1,
-    MARTES = 2,
-    MIERCOLES = 3,
-    JUEVES = 4,
-    VIERNES = 5,
-    SABADO = 6,
-    DOMINGO = 0,
+    LUNES = 0,
+    MARTES = 1,
+    MIERCOLES = 2,
+    JUEVES = 3,
+    VIERNES = 4,
+    SABADO = 5,
+    DOMINGO = 6,
 }
 
 @Entity('reservas_recurrentes')
@@ -41,7 +41,7 @@ export class ReservaRecurrente {
 
     @Column({
         type: 'int',
-        comment: '0=Domingo, 1=Lunes, 2=Martes, etc.'
+        comment: '0=Lunes, 1=Martes, 2=Miercoles, etc.'
     })
     diaSemana: DiaSemana;
 
