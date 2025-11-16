@@ -4,9 +4,10 @@ import { ReservasController } from './reservas.controller';
 import { ReservasService } from './reservas.service';
 import { Reserva } from './entities/reserva.entity';
 import { CanchasModule } from '../canchas/canchas.module';
+import { ReservaRecurrente } from './entities/reserva-recurrente.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Reserva]), CanchasModule],
+    imports: [TypeOrmModule.forFeature([Reserva, ReservaRecurrente]), CanchasModule],
     controllers: [ReservasController],
     providers: [ReservasService],
     exports: [ReservasService],

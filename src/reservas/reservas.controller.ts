@@ -14,6 +14,7 @@ import { CreateReservaDto } from './dto/create-reserva.dto';
 import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CreateReservaRecurrenteDto } from './dto/create-reserva-recurrente.dto';
 
 @Controller('reservas')
 @UseGuards(JwtAuthGuard)
@@ -64,5 +65,29 @@ export class ReservasController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.reservasService.remove(+id);
+    }
+
+    // ✅ NUEVO: Crear reserva recurrente
+    @Post('recurrente')
+    createRecurrente(
+        @Body() createDto: CreateReservaRecurrenteDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.reservasService.createRecurrente({
+            ...createDto,
+            idUsuario: user.idUsuario,
+        });
+    }
+
+    // ✅ NUEVO: Listar mis reservas recurrentes
+    @Get('recurrente/mis-reservas')
+    findMyRecurrentes(@CurrentUser() user: any) {
+        return this.reservasService.findRecurrentesByUsuario(user.idUsuario);
+    }
+
+    // ✅ NUEVO: Cancelar reserva recurrente
+    @Delete('recurrente/:id')
+    cancelRecurrente(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.reservasService.cancelRecurrente(+id, user.idUsuario);
     }
 }
