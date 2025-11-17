@@ -6,12 +6,14 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { CanchasModule } from './canchas/canchas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { ReservasModule } from './reservas/reservas.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

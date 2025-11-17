@@ -71,6 +71,7 @@ export class ReservasService {
                 fechaReserva: fecha,
                 estado: 'confirmada',
             },
+            relations: ['usuario', 'cancha'],
             order: { horaInicio: 'ASC' },
         });
     }

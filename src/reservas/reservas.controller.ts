@@ -15,11 +15,18 @@ import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateReservaRecurrenteDto } from './dto/create-reserva-recurrente.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ReservasCronService } from './reservas-cron.service';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { UserRole } from 'src/usuarios/entities/usuario.entity';
 
 @Controller('reservas')
 @UseGuards(JwtAuthGuard)
 export class ReservasController {
-    constructor(private readonly reservasService: ReservasService) { }
+    constructor(
+        private readonly reservasService: ReservasService,
+        private readonly cronService: ReservasCronService
+    ) { }
 
     @Post()
     create(@Body() createReservaDto: CreateReservaDto, @CurrentUser() user: any) {
@@ -89,5 +96,13 @@ export class ReservasController {
     @Delete('recurrente/:id')
     cancelRecurrente(@Param('id') id: string, @CurrentUser() user: any) {
         return this.reservasService.cancelRecurrente(+id, user.idUsuario);
+    }
+
+    // ✅ NUEVO: Endpoint manual para testing (solo admin)
+    @Post('recurrente/regenerar')
+    @UseGuards(RolesGuard)
+    @Roles(UserRole.ADMIN)
+    regenerarManualmente() {
+        return this.cronService.regenerarManualmente();
     }
 }
