@@ -6,9 +6,21 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    // origin: 'http://localhost:3001', // URL de tu frontend React
-    origin: ['http://localhost:3001', 'https://slateblue-locust-897822.hostingersite.com', 'https://lightyellow-echidna-660344.hostingersite.com'],
-    credentials: true,    
+    origin: (origin, callback) => {
+      // Permitir todos los subdominios de turnos.bourderweb.com.ar
+      const allowedPatterns = [
+        /^https?:\/\/.*\.turnos\.bourderweb\.com\.ar$/,
+        /^https?:\/\/turnos\.bourderweb\.com\.ar$/,
+        /^http:\/\/localhost:\d+$/,  // desarrollo local
+      ];
+
+      if (!origin || allowedPatterns.some((pattern) => pattern.test(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error('No permitido por CORS'));
+      }
+    },
+    credentials: true,
   });
 
   app.useGlobalPipes(
@@ -18,7 +30,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
 
   await app.listen(process.env.PORT || 4000, '0.0.0.0');
   console.log(`Application running on: ${await app.getUrl()}`);

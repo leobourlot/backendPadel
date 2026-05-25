@@ -6,7 +6,7 @@ export const ROLES_KEY = 'roles';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-    constructor(private reflector: Reflector) { }
+    constructor(private reflector: Reflector) {}
 
     canActivate(context: ExecutionContext): boolean {
         const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
@@ -14,26 +14,14 @@ export class RolesGuard implements CanActivate {
             context.getClass(),
         ]);
 
-        console.log('🔒 RolesGuard - Roles requeridos:', requiredRoles);
-
-        if (!requiredRoles) {
-            console.log('✅ No se requieren roles específicos');
-            return true;
-        }
+        if (!requiredRoles) return true;
 
         const { user } = context.switchToHttp().getRequest();
 
-        console.log('👤 Usuario en request:', {
-            id: user?.idUsuario,
-            email: user?.email,
-            rol: user?.rol
-        });
+        // SUPERADMIN siempre tiene acceso a todo
+        if (user?.rol === UserRole.SUPERADMIN) return true;
 
         const hasRole = requiredRoles.some((role) => user.rol === role);
-
-        console.log('🔍 ¿Usuario tiene rol requerido?', hasRole);
-        console.log('🔍 Rol del usuario:', user.rol);
-        console.log('🔍 Roles permitidos:', requiredRoles);
 
         if (!hasRole) {
             throw new ForbiddenException(`Se requiere rol: ${requiredRoles.join(' o ')}`);

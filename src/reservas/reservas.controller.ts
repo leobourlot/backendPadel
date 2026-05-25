@@ -14,91 +14,103 @@ import { CreateReservaDto } from './dto/create-reserva.dto';
 import { UpdateReservaDto } from './dto/update-reserva.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { CurrentClub } from '../common/decorators/current-club.decorator';
 import { CreateReservaRecurrenteDto } from './dto/create-reserva-recurrente.dto';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
 import { ReservasCronService } from './reservas-cron.service';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { UserRole } from 'src/usuarios/entities/usuario.entity';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { UserRole } from '../usuarios/entities/usuario.entity';
+import { Club } from '../clubes/entities/club.entity';
 
 @Controller('reservas')
 @UseGuards(JwtAuthGuard)
 export class ReservasController {
     constructor(
         private readonly reservasService: ReservasService,
-        private readonly cronService: ReservasCronService
+        private readonly cronService: ReservasCronService,
     ) { }
 
     @Post()
-    create(@Body() createReservaDto: CreateReservaDto, @CurrentUser() user: any) {
-        return this.reservasService.create({
-            ...createReservaDto,
-            idUsuario: user.idUsuario,
-        });
+    create(
+        @Body() createReservaDto: CreateReservaDto,
+        @CurrentUser() user: any,
+        @CurrentClub() club: Club,
+    ) {
+        return this.reservasService.create(
+            { ...createReservaDto, idUsuario: user.idUsuario },
+            club.idClub,
+        );
     }
 
     @Get()
-    findAll() {
-        return this.reservasService.findAll();
+    findAll(@CurrentClub() club: Club) {
+        return this.reservasService.findAll(club.idClub);
     }
 
     @Get('mis-reservas')
-    findMyReservas(@CurrentUser() user: any) {
-        return this.reservasService.findByUsuario(user.idUsuario);
+    findMyReservas(@CurrentUser() user: any, @CurrentClub() club: Club) {
+        return this.reservasService.findByUsuario(user.idUsuario, club.idClub);
     }
 
     @Get('cancha/:idCancha')
     findByCancha(
         @Param('idCancha') idCancha: string,
         @Query('fecha') fecha: string,
+        @CurrentClub() club: Club,
     ) {
-        return this.reservasService.findByCancha(+idCancha, new Date(fecha));
+        return this.reservasService.findByCancha(+idCancha, new Date(fecha), club.idClub);
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.reservasService.findOne(+id);
+    findOne(@Param('id') id: string, @CurrentClub() club: Club) {
+        return this.reservasService.findOne(+id, club.idClub);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateReservaDto: UpdateReservaDto) {
-        return this.reservasService.update(+id, updateReservaDto);
+    update(
+        @Param('id') id: string,
+        @Body() updateReservaDto: UpdateReservaDto,
+        @CurrentClub() club: Club,
+    ) {
+        return this.reservasService.update(+id, updateReservaDto, club.idClub);
     }
 
     @Patch(':id/cancel')
-    cancel(@Param('id') id: string) {
-        return this.reservasService.cancel(+id);
+    cancel(@Param('id') id: string, @CurrentClub() club: Club) {
+        return this.reservasService.cancel(+id, club.idClub);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.reservasService.remove(+id);
+    remove(@Param('id') id: string, @CurrentClub() club: Club) {
+        return this.reservasService.remove(+id, club.idClub);
     }
 
-    // ✅ NUEVO: Crear reserva recurrente
     @Post('recurrente')
     createRecurrente(
         @Body() createDto: CreateReservaRecurrenteDto,
         @CurrentUser() user: any,
+        @CurrentClub() club: Club,
     ) {
-        return this.reservasService.createRecurrente({
-            ...createDto,
-            idUsuario: user.idUsuario,
-        });
+        return this.reservasService.createRecurrente(
+            { ...createDto, idUsuario: user.idUsuario },
+            club.idClub,
+        );
     }
 
-    // ✅ NUEVO: Listar mis reservas recurrentes
     @Get('recurrente/mis-reservas')
-    findMyRecurrentes(@CurrentUser() user: any) {
-        return this.reservasService.findRecurrentesByUsuario(user.idUsuario);
+    findMyRecurrentes(@CurrentUser() user: any, @CurrentClub() club: Club) {
+        return this.reservasService.findRecurrentesByUsuario(user.idUsuario, club.idClub);
     }
 
-    // ✅ NUEVO: Cancelar reserva recurrente
     @Delete('recurrente/:id')
-    cancelRecurrente(@Param('id') id: string, @CurrentUser() user: any) {
-        return this.reservasService.cancelRecurrente(+id, user.idUsuario);
+    cancelRecurrente(
+        @Param('id') id: string,
+        @CurrentUser() user: any,
+        @CurrentClub() club: Club,
+    ) {
+        return this.reservasService.cancelRecurrente(+id, user.idUsuario, club.idClub);
     }
 
-    // ✅ NUEVO: Endpoint manual para testing (solo admin)
     @Post('recurrente/regenerar')
     @UseGuards(RolesGuard)
     @Roles(UserRole.ADMIN)

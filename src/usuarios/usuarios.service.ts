@@ -17,13 +17,15 @@ export class UsuariosService {
         return await this.usuariosRepository.save(usuario);
     }
 
-    async findAll(): Promise<Usuario[]> {
+    // Solo devuelve usuarios del mismo club
+    async findAll(idClub: number): Promise<Usuario[]> {
         return await this.usuariosRepository.find({
+            where: { idClub },
             select: ['idUsuario', 'dni', 'email', 'nombre', 'apellido', 'telefono', 'rol', 'activo', 'fechaCreacion'],
             order: {
-                rol: 'DESC',  // Admins primero
-                nombre: 'ASC'
-            }
+                rol: 'DESC',
+                nombre: 'ASC',
+            },
         });
     }
 
@@ -34,28 +36,26 @@ export class UsuariosService {
         if (!usuario) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
-
-        // console.log('📊 Usuario encontrado:', {
-        //     id: usuario.idUsuario,
-        //     email: usuario.email,
-        //     rol: usuario.rol  // ← Debe aparecer aquí
-        // });
-
         return usuario;
     }
 
-    async findByDni(dni: string): Promise<Usuario | null> {
-        return await this.usuariosRepository.findOne({ where: { dni } });
+    // Buscar por DNI dentro del mismo club
+    async findByDni(dni: string, idClub: number): Promise<Usuario | null> {
+        return await this.usuariosRepository.findOne({ where: { dni, idClub } });
     }
 
-    async findByEmail(email: string): Promise<Usuario | null> {
-        return await this.usuariosRepository.findOne({ where: { email } });
+    async findByEmail(email: string, idClub: number): Promise<Usuario | null> {
+        return await this.usuariosRepository.findOne({ where: { email, idClub } });
     }
 
-    async findByDniOrEmail(dni: string, email: string): Promise<Usuario | null> {
+    async findByDniOrEmail(dni: string, email: string, idClub: number): Promise<Usuario | null> {
         return await this.usuariosRepository
             .createQueryBuilder('usuario')
-            .where('usuario.dni = :dni OR usuario.email = :email', { dni, email })
+            .where('(usuario.dni = :dni OR usuario.email = :email) AND usuario.idClub = :idClub', {
+                dni,
+                email,
+                idClub,
+            })
             .getOne();
     }
 
@@ -65,26 +65,17 @@ export class UsuariosService {
         return await this.usuariosRepository.save(usuario);
     }
 
-    // ✅ NUEVO: Cambiar el rol de un usuario
     async updateRole(id: number, rol: UserRole): Promise<Usuario> {
         const usuario = await this.findOne(id);
-
         if (!Object.values(UserRole).includes(rol)) {
             throw new BadRequestException(`Rol inválido: ${rol}`);
         }
-
-        console.log(`📝 Cambiando rol de ${usuario.email} de ${usuario.rol} a ${rol}`);
-
         usuario.rol = rol;
         return await this.usuariosRepository.save(usuario);
     }
 
-    // ✅ NUEVO: Activar/Desactivar usuario
     async toggleActive(id: number, activo: boolean): Promise<Usuario> {
         const usuario = await this.findOne(id);
-
-        console.log(`📝 Cambiando estado de ${usuario.email} a ${activo ? 'activo' : 'inactivo'}`);
-
         usuario.activo = activo;
         return await this.usuariosRepository.save(usuario);
     }

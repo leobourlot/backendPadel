@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { Cancha } from '../../canchas/entities/cancha.entity';
+import { Club } from '../../clubes/entities/club.entity';
 
 export enum DiaSemana {
     DOMINGO = 0,
@@ -24,6 +25,13 @@ export enum DiaSemana {
 export class ReservaRecurrente {
     @PrimaryGeneratedColumn()
     idReservaRecurrente: number;
+
+    @Column()
+    idClub: number;
+
+    @ManyToOne(() => Club)
+    @JoinColumn({ name: 'idClub' })
+    club: Club;
 
     @ManyToOne(() => Usuario)
     @JoinColumn({ name: 'idUsuario' })
@@ -41,7 +49,7 @@ export class ReservaRecurrente {
 
     @Column({
         type: 'int',
-        comment: '0=Domingo, 1=Lunes, 2=Martes, etc.'
+        comment: '0=Domingo, 1=Lunes, 2=Martes, etc.',
     })
     diaSemana: DiaSemana;
 
@@ -55,7 +63,7 @@ export class ReservaRecurrente {
     fechaInicio: Date;
 
     @Column({ type: 'date', nullable: true })
-    fechaFin: Date; // null = indefinido
+    fechaFin: Date;
 
     @Column({ default: true })
     activa: boolean;

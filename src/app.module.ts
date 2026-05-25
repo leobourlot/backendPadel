@@ -1,18 +1,18 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { CanchasModule } from './canchas/canchas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { ReservasModule } from './reservas/reservas.module';
-import { ScheduleModule } from '@nestjs/schedule';
+import { ClubsModule } from './clubes/clubes.module';
+import { ClubMiddleware } from './common/middleware/club.middleware';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -22,9 +22,10 @@ import { ScheduleModule } from '@nestjs/schedule';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Solo en desarrollo, false en producción
+      synchronize: true,
       logging: false,
     }),
+    ClubsModule,
     AuthModule,
     UsuariosModule,
     CanchasModule,
@@ -32,4 +33,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     ReservasModule,
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Aplicar el middleware a todas las rutas
+    consumer.apply(ClubMiddleware).forRoutes('*');
+  }
+}

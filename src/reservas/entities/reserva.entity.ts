@@ -9,11 +9,19 @@ import {
 } from 'typeorm';
 import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { Cancha } from '../../canchas/entities/cancha.entity';
+import { Club } from '../../clubes/entities/club.entity';
 
 @Entity('reservas')
 export class Reserva {
     @PrimaryGeneratedColumn()
     idReserva: number;
+
+    @Column()
+    idClub: number;
+
+    @ManyToOne(() => Club, (club) => club.reservas)
+    @JoinColumn({ name: 'idClub' })
+    club: Club;
 
     @ManyToOne(() => Usuario, (usuario) => usuario.reservas)
     @JoinColumn({ name: 'idUsuario' })
@@ -39,7 +47,7 @@ export class Reserva {
     horaFin: string;
 
     @Column({ length: 50, default: 'confirmada' })
-    estado: string; // confirmada, cancelada, completada
+    estado: string;
 
     @CreateDateColumn()
     fechaCreacion: Date;

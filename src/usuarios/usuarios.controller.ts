@@ -12,9 +12,11 @@ import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from './entities/usuario.entity';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentClub } from '../common/decorators/current-club.decorator';
+import { Club } from '../clubes/entities/club.entity';
 
 @Controller('usuarios')
 @UseGuards(JwtAuthGuard)
@@ -26,11 +28,12 @@ export class UsuariosController {
         return this.usuariosService.create(createUsuarioDto);
     }
 
+    // Solo admins del club ven su lista de usuarios
     @Get()
     @UseGuards(RolesGuard)
     @Roles(UserRole.ADMIN)
-    findAll() {
-        return this.usuariosService.findAll();
+    findAll(@CurrentClub() club: Club) {
+        return this.usuariosService.findAll(club.idClub);
     }
 
     @Get(':id')
@@ -43,21 +46,17 @@ export class UsuariosController {
         return this.usuariosService.update(+id, updateUsuarioDto);
     }
 
-    // ✅ NUEVO: Cambiar rol de un usuario (solo ADMIN)
     @Patch(':id/rol')
     @UseGuards(RolesGuard)
     @Roles(UserRole.ADMIN)
     updateRole(@Param('id') id: string, @Body('rol') rol: UserRole) {
-        console.log(`🔄 Cambiando rol del usuario ${id} a ${rol}`);
         return this.usuariosService.updateRole(+id, rol);
     }
 
-    // ✅ NUEVO: Activar/Desactivar usuario (solo ADMIN)
     @Patch(':id/estado')
     @UseGuards(RolesGuard)
     @Roles(UserRole.ADMIN)
     toggleActive(@Param('id') id: string, @Body('activo') activo: boolean) {
-        console.log(`🔄 Cambiando estado del usuario ${id} a ${activo}`);
         return this.usuariosService.toggleActive(+id, activo);
     }
 

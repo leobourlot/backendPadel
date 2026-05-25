@@ -15,43 +15,46 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../usuarios/entities/usuario.entity';
+import { CurrentClub } from '../common/decorators/current-club.decorator';
+import { Club } from '../clubes/entities/club.entity';
 
 @Controller('canchas')
 export class CanchasController {
     constructor(private readonly canchasService: CanchasService) { }
 
-    // ✅ Solo ADMIN puede crear
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
-    create(@Body() createCanchaDto: CreateCanchaDto) {
-        return this.canchasService.create(createCanchaDto);
+    create(@Body() createCanchaDto: CreateCanchaDto, @CurrentClub() club: Club) {
+        return this.canchasService.create(createCanchaDto, club.idClub);
     }
 
-    // ✅ Todos pueden ver (sin guard)
+    // Todos pueden ver las canchas de su club
     @Get()
-    findAll() {
-        return this.canchasService.findAll();
+    findAll(@CurrentClub() club: Club) {
+        return this.canchasService.findAll(club.idClub);
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.canchasService.findOne(+id);
+    findOne(@Param('id') id: string, @CurrentClub() club: Club) {
+        return this.canchasService.findOne(+id, club.idClub);
     }
 
-    // ✅ Solo ADMIN puede actualizar
     @Patch(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
-    update(@Param('id') id: string, @Body() updateCanchaDto: UpdateCanchaDto) {
-        return this.canchasService.update(+id, updateCanchaDto);
+    update(
+        @Param('id') id: string,
+        @Body() updateCanchaDto: UpdateCanchaDto,
+        @CurrentClub() club: Club,
+    ) {
+        return this.canchasService.update(+id, updateCanchaDto, club.idClub);
     }
 
-    // ✅ Solo ADMIN puede eliminar
     @Delete(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
-    remove(@Param('id') id: string) {
-        return this.canchasService.remove(+id);
+    remove(@Param('id') id: string, @CurrentClub() club: Club) {
+        return this.canchasService.remove(+id, club.idClub);
     }
 }

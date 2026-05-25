@@ -5,13 +5,23 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { Reserva } from '../../reservas/entities/reserva.entity';
+import { Club } from '../../clubes/entities/club.entity';
 
 @Entity('canchas')
 export class Cancha {
     @PrimaryGeneratedColumn()
     idCancha: number;
+
+    @Column()
+    idClub: number;
+
+    @ManyToOne(() => Club, (club) => club.canchas)
+    @JoinColumn({ name: 'idClub' })
+    club: Club;
 
     @Column({ length: 10 })
     numero: string;

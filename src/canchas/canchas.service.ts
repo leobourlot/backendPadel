@@ -12,21 +12,24 @@ export class CanchasService {
         private canchasRepository: Repository<Cancha>,
     ) { }
 
-    async create(createCanchaDto: CreateCanchaDto): Promise<Cancha> {
-        const cancha = this.canchasRepository.create(createCanchaDto);
+    async create(createCanchaDto: CreateCanchaDto, idClub: number): Promise<Cancha> {
+        const cancha = this.canchasRepository.create({
+            ...createCanchaDto,
+            idClub,
+        });
         return await this.canchasRepository.save(cancha);
     }
 
-    async findAll(): Promise<Cancha[]> {
+    async findAll(idClub: number): Promise<Cancha[]> {
         return await this.canchasRepository.find({
-            where: { activa: true },
+            where: { activa: true, idClub },
             order: { numero: 'ASC' },
         });
     }
 
-    async findOne(id: number): Promise<Cancha> {
+    async findOne(id: number, idClub: number): Promise<Cancha> {
         const cancha = await this.canchasRepository.findOne({
-            where: { idCancha: id },
+            where: { idCancha: id, idClub },
         });
         if (!cancha) {
             throw new NotFoundException(`Cancha con ID ${id} no encontrada`);
@@ -34,14 +37,14 @@ export class CanchasService {
         return cancha;
     }
 
-    async update(id: number, updateCanchaDto: UpdateCanchaDto): Promise<Cancha> {
-        const cancha = await this.findOne(id);
+    async update(id: number, updateCanchaDto: UpdateCanchaDto, idClub: number): Promise<Cancha> {
+        const cancha = await this.findOne(id, idClub);
         Object.assign(cancha, updateCanchaDto);
         return await this.canchasRepository.save(cancha);
     }
 
-    async remove(id: number): Promise<void> {
-        const cancha = await this.findOne(id);
+    async remove(id: number, idClub: number): Promise<void> {
+        const cancha = await this.findOne(id, idClub);
         cancha.activa = false;
         await this.canchasRepository.save(cancha);
     }
