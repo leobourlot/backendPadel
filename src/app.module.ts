@@ -7,7 +7,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { CanchasModule } from './canchas/canchas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { ReservasModule } from './reservas/reservas.module';
-import { clubesModule } from './clubes/clubes.module';
+import { ClubesModule } from './clubes/clubes.module';
 import { ClubMiddleware } from './common/middleware/club.middleware';
 
 @Module({
@@ -25,7 +25,7 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
       synchronize: true,
       logging: false,
     }),
-    clubesModule,
+    ClubesModule,
     AuthModule,
     UsuariosModule,
     CanchasModule,
