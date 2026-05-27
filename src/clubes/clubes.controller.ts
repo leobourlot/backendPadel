@@ -8,7 +8,7 @@ import {
     Delete,
     UseGuards,
 } from '@nestjs/common';
-import { ClubsService } from './clubes.service';
+import { ClubesService } from './clubes.service';
 import { CreateClubDto } from './dto/create-club.dto';
 import { UpdateClubDto } from './dto/update-club.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -21,7 +21,7 @@ import { UserRole } from '../usuarios/entities/usuario.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SUPERADMIN)
 export class ClubesController {
-    constructor(private readonly clubsService: ClubsService) { }
+    constructor(private readonly clubsService: ClubesService) { }
 
     @Post()
     create(@Body() createClubDto: CreateClubDto) {
