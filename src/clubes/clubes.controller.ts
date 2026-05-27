@@ -16,35 +16,35 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../usuarios/entities/usuario.entity';
 
-// Solo superadmin puede gestionar clubs (vos, el dueño del SaaS)
-@Controller('clubs')
+// Solo superadmin puede gestionar clubes (vos, el dueño del SaaS)
+@Controller('clubes')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.SUPERADMIN)
 export class ClubesController {
-    constructor(private readonly clubsService: ClubesService) { }
+    constructor(private readonly clubesService: ClubesService) { }
 
     @Post()
     create(@Body() createClubDto: CreateClubDto) {
-        return this.clubsService.create(createClubDto);
+        return this.clubesService.create(createClubDto);
     }
 
     @Get()
     findAll() {
-        return this.clubsService.findAll();
+        return this.clubesService.findAll();
     }
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.clubsService.findOne(+id);
+        return this.clubesService.findOne(+id);
     }
 
     @Patch(':id')
     update(@Param('id') id: string, @Body() updateClubDto: UpdateClubDto) {
-        return this.clubsService.update(+id, updateClubDto);
+        return this.clubesService.update(+id, updateClubDto);
     }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.clubsService.remove(+id);
+        return this.clubesService.remove(+id);
     }
 }

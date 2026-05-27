@@ -10,7 +10,7 @@ import { Usuario } from '../../usuarios/entities/usuario.entity';
 import { Cancha } from '../../canchas/entities/cancha.entity';
 import { Reserva } from '../../reservas/entities/reserva.entity';
 
-@Entity('clubs')
+@Entity('clubes')
 export class Club {
     @PrimaryGeneratedColumn()
     idClub: number;

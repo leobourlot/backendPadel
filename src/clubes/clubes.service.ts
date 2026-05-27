@@ -10,11 +10,11 @@ import { addDays } from 'date-fns';
 export class ClubesService {
     constructor(
         @InjectRepository(Club)
-        private clubsRepository: Repository<Club>,
+        private clubesRepository: Repository<Club>,
     ) {}
 
     async create(createClubDto: CreateClubDto): Promise<Club> {
-        const existente = await this.clubsRepository.findOne({
+        const existente = await this.clubesRepository.findOne({
             where: { slug: createClubDto.slug },
         });
         if (existente) {
@@ -23,7 +23,7 @@ export class ClubesService {
 
         // Asignar mes de prueba automáticamente
         const hoy = new Date();
-        const club = this.clubsRepository.create({
+        const club = this.clubesRepository.create({
             ...createClubDto,
             fechaInicioPrueba: hoy,
             fechaFinPrueba: addDays(hoy, 30),
@@ -31,17 +31,17 @@ export class ClubesService {
             pagado: false,
         });
 
-        return await this.clubsRepository.save(club);
+        return await this.clubesRepository.save(club);
     }
 
     async findAll(): Promise<Club[]> {
-        return await this.clubsRepository.find({
+        return await this.clubesRepository.find({
             order: { fechaCreacion: 'DESC' },
         });
     }
 
     async findOne(id: number): Promise<Club> {
-        const club = await this.clubsRepository.findOne({
+        const club = await this.clubesRepository.findOne({
             where: { idClub: id },
         });
         if (!club) {
@@ -51,19 +51,19 @@ export class ClubesService {
     }
 
     async findBySlug(slug: string): Promise<Club | null> {
-        return await this.clubsRepository.findOne({ where: { slug } });
+        return await this.clubesRepository.findOne({ where: { slug } });
     }
 
     async update(id: number, updateClubDto: UpdateClubDto): Promise<Club> {
         const club = await this.findOne(id);
         Object.assign(club, updateClubDto);
-        return await this.clubsRepository.save(club);
+        return await this.clubesRepository.save(club);
     }
 
     async remove(id: number): Promise<void> {
         const club = await this.findOne(id);
         club.activo = false;
-        await this.clubsRepository.save(club);
+        await this.clubesRepository.save(club);
     }
 
     // Verifica si el club está en período de prueba o pagado

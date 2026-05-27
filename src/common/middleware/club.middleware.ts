@@ -4,7 +4,7 @@ import { ClubesService } from '../../clubes/clubes.service';
 
 @Injectable()
 export class ClubMiddleware implements NestMiddleware {
-    constructor(private readonly clubsService: ClubesService) { }
+    constructor(private readonly clubesService: ClubesService) { }
 
     async use(req: Request, res: Response, next: NextFunction) {
         const host = req.headers.host || '';
@@ -22,7 +22,7 @@ export class ClubMiddleware implements NestMiddleware {
 
         // Rutas que no necesitan club (panel super admin)
         const rutasPublicas = [
-            '/clubs',
+            '/clubes',
             '/auth/superadmin',
         ];
 
@@ -40,7 +40,7 @@ export class ClubMiddleware implements NestMiddleware {
         }
 
         try {
-            const club = await this.clubsService.findBySlug(slugFinal);
+            const club = await this.clubesService.findBySlug(slugFinal);
 
             if (!club) {
                 return res.status(404).json({
@@ -50,7 +50,7 @@ export class ClubMiddleware implements NestMiddleware {
             }
 
             // Verificar si el club está activo (pagado o en prueba)
-            if (!this.clubsService.isClubActivo(club)) {
+            if (!this.clubesService.isClubActivo(club)) {
                 return res.status(403).json({
                     statusCode: 403,
                     message: 'El período de prueba ha vencido. Contacta a tu proveedor.',

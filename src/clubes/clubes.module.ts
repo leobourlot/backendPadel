@@ -10,4 +10,4 @@ import { Club } from './entities/club.entity';
     providers: [ClubesService],
     exports: [ClubesService],
 })
-export class ClubsModule { }
+export class ClubesModule { }
