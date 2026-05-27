@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ClubesService } from '../clubes/clubes.service';
+import { ClubesService } from '../../clubes/clubes.service';
 
 @Injectable()
 export class ClubMiddleware implements NestMiddleware {
