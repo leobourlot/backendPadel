@@ -12,6 +12,7 @@ async function bootstrap() {
         /^https?:\/\/.*\.turnos\.bourderweb\.com\.ar$/,
         /^https?:\/\/turnos\.bourderweb\.com\.ar$/,
         /^http:\/\/localhost:\d+$/,  // desarrollo local
+        /^https:\/\/slateblue-locust-897822\.hostingersite\.com$/,
       ];
 
       if (!origin || allowedPatterns.some((pattern) => pattern.test(origin))) {
