@@ -1,42 +1,32 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import { ClubesService } from '../../clubes/clubes.service';
 
 @Injectable()
 export class ClubMiddleware implements NestMiddleware {
     constructor(private readonly clubesService: ClubesService) { }
 
-    async use(req: Request, res: Response, next: NextFunction) {
-        const host = req.headers.host || '';
+    async use(req: any, res: any, next: () => void) {
+        const host: string = req.headers.host || '';
 
-        // Ejemplos de host:
-        // "clubdelrio.turnos.bourderweb.com.ar"  → slug = "clubdelrio"
-        // "localhost:4000"                        → slug = "localhost" (desarrollo)
-        // "turnos.bourderweb.com.ar"             → panel principal (sin club)
-
-        const slug = host.split('.')[0];
-
-        // En desarrollo local podés usar el header X-Club-Slug para testear
-        const slugOverride = req.headers['x-club-slug'] as string;
-        const slugFinal = slugOverride || slug;
+        // El slug puede venir del header X-Club-Slug (mandado por el frontend)
+        // o del primer segmento del subdominio del host
+        const slugFromHeader = req.headers['x-club-slug'] as string;
+        const slugFromHost = host.split('.')[0];
+        const slugFinal = slugFromHeader || slugFromHost;
 
         // Rutas que no necesitan club (panel super admin)
-        const rutasPublicas = [
-            '/clubes',
-            '/auth/superadmin',
-        ];
+        const rutasPublicas = ['/clubes', '/auth/superadmin'];
+        const esRutaPublica = rutasPublicas.some(ruta => req.path?.startsWith(ruta));
+        if (esRutaPublica) return next();
 
-        const esRutaPublica = rutasPublicas.some(ruta =>
-            req.path.startsWith(ruta)
-        );
-
-        if (esRutaPublica) {
-            return next();
-        }
-
-        // Ignorar si es localhost sin override (desarrollo sin club específico)
-        if (slugFinal === 'localhost' && !slugOverride) {
-            return next();
+        // En desarrollo local sin header, usar club por defecto
+        if (slugFinal === 'localhost' || slugFinal === '127') {
+            const clubDev = await this.clubesService.findBySlug('slateblue-locust-897822');
+            if (clubDev) {
+                req['club'] = clubDev;
+                return next();
+            }
+            return next(); // Si tampoco encuentra el club dev, continuar igual
         }
 
         try {
@@ -49,7 +39,7 @@ export class ClubMiddleware implements NestMiddleware {
                 });
             }
 
-            // Verificar si el club está activo (pagado o en prueba)
+            // Verificar si el club está activo (pagado o en período de prueba)
             if (!this.clubesService.isClubActivo(club)) {
                 return res.status(403).json({
                     statusCode: 403,
@@ -58,7 +48,6 @@ export class ClubMiddleware implements NestMiddleware {
                 });
             }
 
-            // Inyectar el club en el request para usarlo en los controllers
             req['club'] = club;
             next();
         } catch (error) {
