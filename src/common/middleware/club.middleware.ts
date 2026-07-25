@@ -6,6 +6,10 @@ export class ClubMiddleware implements NestMiddleware {
     constructor(private readonly clubesService: ClubesService) { }
 
     async use(req: any, res: any, next: () => void) {
+        if (req.method === 'OPTIONS') {
+            return next();
+        }
+
         const host: string = req.headers.host || '';
 
         // El slug puede venir del header X-Club-Slug (mandado por el frontend)
