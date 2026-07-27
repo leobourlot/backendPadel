@@ -41,8 +41,8 @@ export class AppModule implements NestModule {
         cors({
           origin: (origin, callback) => {
             const allowedPatterns = [
-              /^https?:\/\/.*\.turnos\.bourderweb\.com\.ar$/,
-              /^https?:\/\/turnos\.bourderweb\.com\.ar$/,
+              /^https?:\/\/.*\.bourderweb\.com\.ar$/,   // clientes: prueba1.bourderweb.com.ar
+              /^https?:\/\/turnos\.bourderweb\.com\.ar$/, // landing
               /^http:\/\/localhost:\d+$/,
               /^http:\/\/127\.0\.0\.1:\d+$/,
               /^https:\/\/slateblue-locust-897822\.hostingersite\.com$/,
