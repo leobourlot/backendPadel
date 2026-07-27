@@ -45,7 +45,6 @@ export class AppModule implements NestModule {
               /^https?:\/\/.*\.bourderweb\.com\.ar$/,
               /^https?:\/\/turnos\.bourderweb\.com\.ar$/,
               /^http:\/\/localhost:\d+$/,
-              /^http:\/\/localhost:\d+$/,
               /^http:\/\/127\.0\.0\.1:\d+$/,
               /^https:\/\/slateblue-locust-897822\.hostingersite\.com$/,
             ];

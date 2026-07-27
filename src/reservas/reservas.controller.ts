@@ -23,7 +23,6 @@ import { UserRole } from '../usuarios/entities/usuario.entity';
 import { Club } from '../clubes/entities/club.entity';
 
 @Controller('reservas')
-@UseGuards(JwtAuthGuard)
 export class ReservasController {
     constructor(
         private readonly reservasService: ReservasService,
@@ -31,6 +30,7 @@ export class ReservasController {
     ) { }
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     create(
         @Body() createReservaDto: CreateReservaDto,
         @CurrentUser() user: any,
@@ -43,11 +43,13 @@ export class ReservasController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     findAll(@CurrentClub() club: Club) {
         return this.reservasService.findAll(club.idClub);
     }
 
     @Get('mis-reservas')
+    @UseGuards(JwtAuthGuard)
     findMyReservas(@CurrentUser() user: any, @CurrentClub() club: Club) {
         return this.reservasService.findByUsuario(user.idUsuario, club.idClub);
     }
@@ -62,11 +64,13 @@ export class ReservasController {
     }
 
     @Get(':id')
+    @UseGuards(JwtAuthGuard)
     findOne(@Param('id') id: string, @CurrentClub() club: Club) {
         return this.reservasService.findOne(+id, club.idClub);
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard)
     update(
         @Param('id') id: string,
         @Body() updateReservaDto: UpdateReservaDto,
@@ -76,16 +80,19 @@ export class ReservasController {
     }
 
     @Patch(':id/cancel')
+    @UseGuards(JwtAuthGuard)
     cancel(@Param('id') id: string, @CurrentClub() club: Club) {
         return this.reservasService.cancel(+id, club.idClub);
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard)
     remove(@Param('id') id: string, @CurrentClub() club: Club) {
         return this.reservasService.remove(+id, club.idClub);
     }
 
     @Post('recurrente')
+    @UseGuards(JwtAuthGuard)
     createRecurrente(
         @Body() createDto: CreateReservaRecurrenteDto,
         @CurrentUser() user: any,
@@ -98,11 +105,13 @@ export class ReservasController {
     }
 
     @Get('recurrente/mis-reservas')
+    @UseGuards(JwtAuthGuard)
     findMyRecurrentes(@CurrentUser() user: any, @CurrentClub() club: Club) {
         return this.reservasService.findRecurrentesByUsuario(user.idUsuario, club.idClub);
     }
 
     @Delete('recurrente/:id')
+    @UseGuards(JwtAuthGuard)
     cancelRecurrente(
         @Param('id') id: string,
         @CurrentUser() user: any,
@@ -112,7 +121,7 @@ export class ReservasController {
     }
 
     @Post('recurrente/regenerar')
-    @UseGuards(RolesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     regenerarManualmente() {
         return this.cronService.regenerarManualmente();
