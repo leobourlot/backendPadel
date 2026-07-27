@@ -2,8 +2,9 @@ import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import cors from 'cors';
 import { AuthModule } from './auth/auth.module';
+
+const cors = require('cors');
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { CanchasModule } from './canchas/canchas.module';
 import { HorariosModule } from './horarios/horarios.module';
