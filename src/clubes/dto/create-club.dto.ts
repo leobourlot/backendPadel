@@ -17,6 +17,30 @@ export class CreateClubDto {
     @IsOptional()
     telefono?: string;
 
+    @IsString()
+    @IsOptional()
+    direccion?: string;
+
+    @IsString()
+    @IsOptional()
+    facebookUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    instagramUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    twitterUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    horarioSemana?: string;
+
+    @IsString()
+    @IsOptional()
+    horarioFinde?: string;
+
     @IsBoolean()
     @IsOptional()
     activo?: boolean;

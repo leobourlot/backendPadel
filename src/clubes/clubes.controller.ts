@@ -15,35 +15,50 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../usuarios/entities/usuario.entity';
+import { CurrentClub } from '../common/decorators/current-club.decorator';
+import { Club } from './entities/club.entity';
 
-// Solo superadmin puede gestionar clubes (vos, el dueño del SaaS)
 @Controller('clubes')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.SUPERADMIN)
 export class ClubesController {
     constructor(private readonly clubesService: ClubesService) { }
 
+    // ✅ NUEVO: pública, devuelve los datos del club resuelto por el subdominio actual
+    @Get('info')
+    getInfo(@CurrentClub() club: Club) {
+        return this.clubesService.getPublicInfo(club);
+    }
+
     @Post()
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
     create(@Body() createClubDto: CreateClubDto) {
         return this.clubesService.create(createClubDto);
     }
 
     @Get()
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
     findAll() {
         return this.clubesService.findAll();
     }
 
     @Get(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
     findOne(@Param('id') id: string) {
         return this.clubesService.findOne(+id);
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
     update(@Param('id') id: string, @Body() updateClubDto: UpdateClubDto) {
         return this.clubesService.update(+id, updateClubDto);
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
     remove(@Param('id') id: string) {
         return this.clubesService.remove(+id);
     }

@@ -11,7 +11,7 @@ export class ClubesService {
     constructor(
         @InjectRepository(Club)
         private clubesRepository: Repository<Club>,
-    ) {}
+    ) { }
 
     async create(createClubDto: CreateClubDto): Promise<Club> {
         const existente = await this.clubesRepository.findOne({
@@ -78,5 +78,20 @@ export class ClubesService {
         }
 
         return false;
+    }
+
+    getPublicInfo(club: Club) {
+        return {
+            slug: club.slug,
+            nombre: club.nombre,
+            emailContacto: club.emailContacto,
+            telefono: club.telefono,
+            direccion: club.direccion,
+            facebookUrl: club.facebookUrl,
+            instagramUrl: club.instagramUrl,
+            twitterUrl: club.twitterUrl,
+            horarioSemana: club.horarioSemana,
+            horarioFinde: club.horarioFinde,
+        };
     }
 }

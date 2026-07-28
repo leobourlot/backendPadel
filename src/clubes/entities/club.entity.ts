@@ -27,6 +27,24 @@ export class Club {
     @Column({ length: 20, nullable: true })
     telefono: string;
 
+    @Column({ length: 255, nullable: true })
+    direccion: string;
+
+    @Column({ length: 255, nullable: true })
+    facebookUrl: string;
+
+    @Column({ length: 255, nullable: true })
+    instagramUrl: string;
+
+    @Column({ length: 255, nullable: true })
+    twitterUrl: string;
+
+    @Column({ length: 100, nullable: true })
+    horarioSemana: string;
+
+    @Column({ length: 100, nullable: true })
+    horarioFinde: string;
+
     @Column({ default: true })
     activo: boolean;
 
