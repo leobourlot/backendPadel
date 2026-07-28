@@ -29,6 +29,9 @@ export class Club {
 
     @Column({ length: 255, nullable: true })
     direccion: string;
+    
+    @Column({ length: 255, nullable: true })
+    mail: string;
 
     @Column({ length: 255, nullable: true })
     facebookUrl: string;

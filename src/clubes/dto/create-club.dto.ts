@@ -20,6 +20,10 @@ export class CreateClubDto {
     @IsString()
     @IsOptional()
     direccion?: string;
+    
+    @IsString()
+    @IsOptional()
+    mail?: string;
 
     @IsString()
     @IsOptional()
