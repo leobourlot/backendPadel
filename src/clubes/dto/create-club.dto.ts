@@ -23,10 +23,6 @@ export class CreateClubDto {
     
     @IsString()
     @IsOptional()
-    mail?: string;
-
-    @IsString()
-    @IsOptional()
     facebookUrl?: string;
 
     @IsString()

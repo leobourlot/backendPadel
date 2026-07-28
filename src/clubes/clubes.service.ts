@@ -86,7 +86,6 @@ export class ClubesService {
             nombre: club.nombre,
             emailContacto: club.emailContacto,
             telefono: club.telefono,
-            mail: club.mail,
             direccion: club.direccion,
             facebookUrl: club.facebookUrl,
             instagramUrl: club.instagramUrl,
