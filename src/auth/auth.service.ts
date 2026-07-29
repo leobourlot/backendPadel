@@ -21,7 +21,6 @@ export class AuthService {
     async register(registerDto: RegisterDto, club: Club) {
         const { dni, email, clave, confirmPassword, ...userData } = registerDto;
 
-        // Verificar unicidad dentro del mismo club
         const existingUser = await this.usuariosService.findByDniOrEmail(
             dni,
             email,
@@ -33,25 +32,34 @@ export class AuthService {
 
         const hashedPassword = await bcrypt.hash(clave, 10);
 
-        const usuario = await this.usuariosService.create({
-            dni,
-            email,
-            clave: hashedPassword,
-            rol: UserRole.JUGADOR,
-            idClub: club.idClub,
-            ...userData,
-        });
+        try {
+            const usuario = await this.usuariosService.create({
+                dni,
+                email,
+                clave: hashedPassword,
+                rol: UserRole.JUGADOR,
+                idClub: club.idClub,
+                ...userData,
+            });
 
-        const token = this.generateToken(usuario, club);
+            const token = this.generateToken(usuario, club);
 
-        return {
-            usuario: this.sanitizeUser(usuario),
-            token,
-            club: {
-                slug: club.slug,
-                nombre: club.nombre,
-            },
-        };
+            return {
+                usuario: this.sanitizeUser(usuario),
+                token,
+                club: {
+                    slug: club.slug,
+                    nombre: club.nombre,
+                },
+            };
+        } catch (error: unknown) {
+            const err = error as { code?: string };
+
+            if (err.code === 'ER_DUP_ENTRY') {
+                throw new ConflictException('El DNI o email ya está registrado en este club');
+            }
+            throw error;
+        }
     }
 
     async login(loginDto: LoginDto, club: Club) {

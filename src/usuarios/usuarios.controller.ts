@@ -7,6 +7,7 @@ import {
     Param,
     Delete,
     UseGuards,
+    ForbiddenException
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -17,6 +18,7 @@ import { UserRole } from './entities/usuario.entity';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentClub } from '../common/decorators/current-club.decorator';
 import { Club } from '../clubes/entities/club.entity';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('usuarios')
 @UseGuards(JwtAuthGuard)
@@ -42,8 +44,22 @@ export class UsuariosController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-        return this.usuariosService.update(+id, updateUsuarioDto);
+    update(
+        @Param('id') id: string,
+        @Body() updateUsuarioDto: UpdateUsuarioDto,
+        @CurrentUser() currentUser: any,
+        @CurrentClub() club: Club,
+    ) {
+        const targetId = +id;
+        const esPropio = currentUser.idUsuario === targetId;
+        const esAdmin = currentUser.rol === UserRole.ADMIN;
+        const esSuperAdmin = currentUser.rol === UserRole.SUPERADMIN;
+
+        if (!esPropio && !esAdmin && !esSuperAdmin) {
+            throw new ForbiddenException('No tenés permiso para editar este usuario');
+        }
+
+        return this.usuariosService.update(targetId, updateUsuarioDto, club.idClub, esSuperAdmin);
     }
 
     @Patch(':id/rol')

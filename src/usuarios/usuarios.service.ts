@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserRole, Usuario } from './entities/usuario.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import * as bcrypt from 'bcryptjs';
+
 
 @Injectable()
 export class UsuariosService {
@@ -59,9 +61,28 @@ export class UsuariosService {
             .getOne();
     }
 
-    async update(id: number, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
+    async update(
+        id: number,
+        updateUsuarioDto: UpdateUsuarioDto,
+        idClubSolicitante?: number,
+        esSuperAdmin?: boolean,
+    ): Promise<Usuario> {
         const usuario = await this.findOne(id);
-        Object.assign(usuario, updateUsuarioDto);
+
+        // Si no es superadmin, solo puede editar usuarios de su propio club
+        if (!esSuperAdmin && idClubSolicitante && usuario.idClub !== idClubSolicitante) {
+            throw new ForbiddenException('No tenés permiso para editar este usuario');
+        }
+
+        const dataToUpdate: any = { ...updateUsuarioDto };
+
+        if (dataToUpdate.clave) {
+            dataToUpdate.clave = await bcrypt.hash(dataToUpdate.clave, 10);
+        } else {
+            delete dataToUpdate.clave; // no pisar la contraseña si no se envió una nueva
+        }
+
+        Object.assign(usuario, dataToUpdate);
         return await this.usuariosRepository.save(usuario);
     }
 

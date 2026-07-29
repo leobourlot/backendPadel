@@ -7,6 +7,7 @@ import {
     OneToMany,
     ManyToOne,
     JoinColumn,
+    Unique,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Reserva } from '../../reservas/entities/reserva.entity';
@@ -19,6 +20,8 @@ export enum UserRole {
 }
 
 @Entity('usuarios')
+@Unique(['dni', 'idClub'])  
+@Unique(['email', 'idClub'])
 export class Usuario {
     @PrimaryGeneratedColumn()
     idUsuario: number;
@@ -31,10 +34,10 @@ export class Usuario {
     @JoinColumn({ name: 'idClub' })
     club: Club;
 
-    @Column({ unique: true, length: 20 })
+    @Column({ length: 20 })
     dni: string;
 
-    @Column({ unique: true, length: 100 })
+    @Column({ length: 100 })
     email: string;
 
     @Column({ length: 100 })
