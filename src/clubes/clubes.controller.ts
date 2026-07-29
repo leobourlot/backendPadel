@@ -17,6 +17,8 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../usuarios/entities/usuario.entity';
 import { CurrentClub } from '../common/decorators/current-club.decorator';
 import { Club } from './entities/club.entity';
+import { CreateClubConAdminDto } from './dto/create-club-con-admin.dto'; 
+
 
 @Controller('clubes')
 export class ClubesController {
@@ -61,5 +63,12 @@ export class ClubesController {
     @Roles(UserRole.SUPERADMIN)
     remove(@Param('id') id: string) {
         return this.clubesService.remove(+id);
+    }
+
+    @Post('con-admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.SUPERADMIN)
+    createConAdmin(@Body() dto: CreateClubConAdminDto) {
+        return this.clubesService.createConAdmin(dto);
     }
 }
