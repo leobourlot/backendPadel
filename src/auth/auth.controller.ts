@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CurrentClub } from '../common/decorators/current-club.decorator';
 import { Club } from '../clubes/entities/club.entity';
+import { LoginSuperAdminDto } from './dto/login-superadmin.dto'; // ✅ NUEVO
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +20,11 @@ export class AuthController {
     @Post('login')
     async login(@Body() loginDto: LoginDto, @CurrentClub() club: Club) {
         return await this.authService.login(loginDto, club);
+    }
+
+    @Post('superadmin/login')
+    async loginSuperAdmin(@Body() loginDto: LoginSuperAdminDto) {
+        return await this.authService.loginSuperAdmin(loginDto);
     }
 
     @Get('profile')

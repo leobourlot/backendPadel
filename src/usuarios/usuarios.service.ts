@@ -105,4 +105,10 @@ export class UsuariosService {
         const usuario = await this.findOne(id);
         await this.usuariosRepository.remove(usuario);
     }
+
+    async findSuperAdminByDni(dni: string): Promise<Usuario | null> {
+        return await this.usuariosRepository.findOne({
+            where: { dni, rol: UserRole.SUPERADMIN },
+        });
+    }
 }

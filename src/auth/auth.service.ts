@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { LoginDto } from './dto/login.dto';
+import { LoginSuperAdminDto } from './dto/login-superadmin.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserRole } from '../usuarios/entities/usuario.entity';
 import { Club } from '../clubes/entities/club.entity';
@@ -89,6 +90,39 @@ export class AuthService {
                 slug: club.slug,
                 nombre: club.nombre,
             },
+        };
+    }
+
+    async loginSuperAdmin(loginDto: LoginSuperAdminDto) {
+        const { dni, password } = loginDto;
+
+        const usuario = await this.usuariosService.findSuperAdminByDni(dni);
+        if (!usuario) {
+            throw new UnauthorizedException('Credenciales incorrectas');
+        }
+
+        if (!usuario.activo) {
+            throw new UnauthorizedException('Usuario desactivado');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, usuario.clave);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Credenciales incorrectas');
+        }
+
+        const payload = {
+            sub: usuario.idUsuario,
+            dni: usuario.dni,
+            email: usuario.email,
+            rol: usuario.rol,
+            idClub: null,
+            slugClub: null,
+        };
+        const token = this.jwtService.sign(payload);
+
+        return {
+            usuario: this.sanitizeUser(usuario),
+            token,
         };
     }
 
