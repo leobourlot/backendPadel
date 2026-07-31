@@ -20,8 +20,14 @@ export class ClubMiddleware implements NestMiddleware {
 
         // Rutas que no necesitan club (panel super admin)
         const rutasPublicas = ['/clubes', '/auth/superadmin'];
-        const esRutaPublica = rutasPublicas.some(ruta => req.path?.startsWith(ruta));
+
+        const path = req.originalUrl || req.path || req.url; // ✅ más robusto
+        const esRutaPublica = rutasPublicas.some(ruta => path?.startsWith(ruta));
+        // const esRutaPublica = rutasPublicas.some(ruta => req.path?.startsWith(ruta));
         if (esRutaPublica) return next();
+
+        console.log('🔍 Path recibido:', path, '| Es ruta pública:', esRutaPublica); // ✅ TEMPORAL, para debug
+
 
         // En desarrollo local sin header, usar club por defecto
         if (slugFinal === 'localhost' || slugFinal === '127') {
