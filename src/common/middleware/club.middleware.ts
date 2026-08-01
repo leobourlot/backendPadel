@@ -11,24 +11,29 @@ export class ClubMiddleware implements NestMiddleware {
         }
 
         const host: string = req.headers.host || '';
-
-        // El slug puede venir del header X-Club-Slug (mandado por el frontend)
-        // o del primer segmento del subdominio del host
         const slugFromHeader = req.headers['x-club-slug'] as string;
         const slugFromHost = host.split('.')[0];
         const slugFinal = slugFromHeader || slugFromHost;
 
-        // Rutas que no necesitan club (panel super admin)
-        const rutasPublicas = ['/clubes', '/auth/superadmin', '/horarios-club'];
-        const esRutaSuperAdminHorarios = /^\/horarios-club\/\d+$/.test(req.path || '');
+        const path: string = req.originalUrl || req.path || req.url || '';
+        const pathOnly = path.split('?')[0]; // sacamos el query string para el matching
 
-        const path = req.originalUrl || req.path || req.url; // ✅ más robusto
-        const esRutaPublica = rutasPublicas.some(ruta => path?.startsWith(ruta) || esRutaSuperAdminHorarios);
-        // const esRutaPublica = rutasPublicas.some(ruta => req.path?.startsWith(ruta));
+        // ✅ Matching PRECISO: solo las rutas de superadmin que operan sobre OTRO club (por :id),
+        // o rutas que no requieren ningún club. NUNCA por prefijo amplio.
+        const bypassExacto = ['/clubes', '/auth/superadmin/login'];
+        const bypassRegex = [
+            /^\/clubes\/con-admin$/,      // crear club + admin (superadmin)
+            /^\/clubes\/\d+$/,            // GET/PATCH/DELETE /clubes/:id (superadmin)
+            /^\/horarios-club\/\d+$/,     // GET/PUT /horarios-club/:idClub (superadmin)
+        ];
+
+        const esRutaPublica =
+            bypassExacto.includes(pathOnly) ||
+            bypassRegex.some((r) => r.test(pathOnly));
+
+        console.log('🔍 Path recibido:', pathOnly, '| Es ruta pública:', esRutaPublica); // dejalo un tiempo más para confirmar
+
         if (esRutaPublica) return next();
-
-        console.log('🔍 Path recibido:', path, '| Es ruta pública:', esRutaPublica); // ✅ TEMPORAL, para debug
-
 
         // En desarrollo local sin header, usar club por defecto
         if (slugFinal === 'localhost' || slugFinal === '127') {
@@ -37,7 +42,7 @@ export class ClubMiddleware implements NestMiddleware {
                 req['club'] = clubDev;
                 return next();
             }
-            return next(); // Si tampoco encuentra el club dev, continuar igual
+            return next();
         }
 
         try {
@@ -50,7 +55,6 @@ export class ClubMiddleware implements NestMiddleware {
                 });
             }
 
-            // Verificar si el club está activo (pagado o en período de prueba)
             if (!this.clubesService.isClubActivo(club)) {
                 return res.status(403).json({
                     statusCode: 403,
