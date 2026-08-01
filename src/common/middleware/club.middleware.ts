@@ -19,10 +19,11 @@ export class ClubMiddleware implements NestMiddleware {
         const slugFinal = slugFromHeader || slugFromHost;
 
         // Rutas que no necesitan club (panel super admin)
-        const rutasPublicas = ['/clubes', '/auth/superadmin'];
+        const rutasPublicas = ['/clubes', '/auth/superadmin', '/horarios-club'];
+        const esRutaSuperAdminHorarios = /^\/horarios-club\/\d+$/.test(req.path || '');
 
         const path = req.originalUrl || req.path || req.url; // ✅ más robusto
-        const esRutaPublica = rutasPublicas.some(ruta => path?.startsWith(ruta));
+        const esRutaPublica = rutasPublicas.some(ruta => path?.startsWith(ruta) || esRutaSuperAdminHorarios);
         // const esRutaPublica = rutasPublicas.some(ruta => req.path?.startsWith(ruta));
         if (esRutaPublica) return next();
 

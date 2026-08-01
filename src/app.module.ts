@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
+import { HorariosClubModule } from './horarios-club/horarios-club.module'; // ✅ NUEVO
 
 const cors = require('cors');
 import { UsuariosModule } from './usuarios/usuarios.module';
@@ -32,6 +33,7 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
     UsuariosModule,
     CanchasModule,
     HorariosModule,
+    HorariosClubModule,
     ReservasModule,
   ],
 })
