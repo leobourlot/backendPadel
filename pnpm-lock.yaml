@@ -56,6 +56,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      mercadopago:
+        specifier: ^3.2.1
+        version: 3.2.1
       mysql2:
         specifier: ^3.6.0
         version: 3.15.3
@@ -1268,6 +1271,10 @@ packages:
   memfs@3.5.3:
     resolution: {integrity: sha512-UERzLsxzllchadvbPs5aolHh65ISpKpM+ccLbOJ8/vvpBKmAWf+la7dXFy7Mr0ySHbdHrFv5kGFCUHHe6GFEmw==}
     engines: {node: '>= 4.0.0'}
+
+  mercadopago@3.2.1:
+    resolution: {integrity: sha512-CFKq5H4XCL8xiLcsFbW84uGZPYnIpE2IRWlDGSHLQf3rszSiHRleWrrg7KG486B46GpJ0gzhvGMdWVwsNKTvFg==}
+    engines: {node: '>=18'}
 
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
@@ -3336,6 +3343,8 @@ snapshots:
   memfs@3.5.3:
     dependencies:
       fs-monkey: 1.1.0
+
+  mercadopago@3.2.1: {}
 
   merge-descriptors@1.0.3: {}
 

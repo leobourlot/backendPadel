@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEmail, IsBoolean, IsDateString } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsOptional, IsEmail, IsBoolean, IsDateString } from 'class-validator';
 
 export class CreateClubDto {
     @IsString()
@@ -20,7 +20,7 @@ export class CreateClubDto {
     @IsString()
     @IsOptional()
     direccion?: string;
-    
+
     @IsString()
     @IsOptional()
     facebookUrl?: string;
@@ -52,4 +52,16 @@ export class CreateClubDto {
     @IsDateString()
     @IsOptional()
     fechaFinPrueba?: Date;
+
+    @IsBoolean()
+    @IsOptional()
+    mercadopagoHabilitado?: boolean;
+
+    @IsString()
+    @IsOptional()
+    mercadopagoAccessToken?: string;
+
+    @IsNumber()
+    @IsOptional()
+    precioReserva?: number;
 }

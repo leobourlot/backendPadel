@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { HorariosClubModule } from './horarios-club/horarios-club.module'; // ✅ NUEVO
+import { PagosModule } from './pagos/pagos.module';
 
 const cors = require('cors');
 import { UsuariosModule } from './usuarios/usuarios.module';
@@ -35,6 +36,7 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
     HorariosModule,
     HorariosClubModule,
     ReservasModule,
+    PagosModule
   ],
 })
 export class AppModule implements NestModule {

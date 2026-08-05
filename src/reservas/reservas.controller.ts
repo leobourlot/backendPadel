@@ -8,6 +8,8 @@ import {
     Delete,
     UseGuards,
     Query,
+    Inject,
+    forwardRef,
 } from '@nestjs/common';
 import { ReservasService } from './reservas.service';
 import { CreateReservaDto } from './dto/create-reserva.dto';
@@ -21,12 +23,15 @@ import { ReservasCronService } from './reservas-cron.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from '../usuarios/entities/usuario.entity';
 import { Club } from '../clubes/entities/club.entity';
+import { PagosService } from '../pagos/pagos.service'; // ✅ NUEVO
 
 @Controller('reservas')
 export class ReservasController {
     constructor(
         private readonly reservasService: ReservasService,
         private readonly cronService: ReservasCronService,
+        @Inject(forwardRef(() => PagosService)) // ✅ NUEVO
+        private readonly pagosService: PagosService, // ✅ NUEVO
     ) { }
 
     @Post()
@@ -79,10 +84,11 @@ export class ReservasController {
         return this.reservasService.update(+id, updateReservaDto, club.idClub);
     }
 
+    // ✅ CAMBIADO: ahora usa PagosService para aplicar la política de devolución/seña
     @Patch(':id/cancel')
     @UseGuards(JwtAuthGuard)
     cancel(@Param('id') id: string, @CurrentClub() club: Club) {
-        return this.reservasService.cancel(+id, club.idClub);
+        return this.pagosService.cancelarConPolitica(+id, club.idClub);
     }
 
     @Delete(':id')

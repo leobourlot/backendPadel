@@ -54,4 +54,16 @@ export class Reserva {
 
     @UpdateDateColumn()
     fechaActualizacion: Date;
+
+    @Column({ length: 20, default: 'no_aplica' })
+    estadoPago: string; // no_aplica | pendiente | pagado | reembolsado
+
+    @Column({ length: 100, nullable: true })
+    idPagoMercadoPago: string; // id del payment de MP
+
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    montoPagado: number;
+
+    @Column({ length: 20, nullable: true })
+    metodoPago: string; // mercadopago | presencial
 }

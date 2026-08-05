@@ -143,6 +143,8 @@ export class ClubesService {
             twitterUrl: club.twitterUrl,
             horarioSemana: club.horarioSemana,
             horarioFinde: club.horarioFinde,
+            mercadopagoHabilitado: club.mercadopagoHabilitado, // ✅ NUEVO
+            precioReserva: club.precioReserva,                 // ✅ NUEVO
         };
     }
 }

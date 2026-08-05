@@ -20,7 +20,7 @@ export class ClubMiddleware implements NestMiddleware {
 
         // ✅ Matching PRECISO: solo las rutas de superadmin que operan sobre OTRO club (por :id),
         // o rutas que no requieren ningún club. NUNCA por prefijo amplio.
-        const bypassExacto = ['/clubes', '/auth/superadmin/login'];
+        const bypassExacto = ['/clubes', '/auth/superadmin/login', '/pagos/webhook'];
         const bypassRegex = [
             /^\/clubes\/con-admin$/,      // crear club + admin (superadmin)
             /^\/clubes\/\d+$/,            // GET/PATCH/DELETE /clubes/:id (superadmin)

@@ -29,7 +29,7 @@ export class Club {
 
     @Column({ length: 255, nullable: true })
     direccion: string;
-    
+
     @Column({ length: 255, nullable: true })
     facebookUrl: string;
 
@@ -71,4 +71,13 @@ export class Club {
 
     @OneToMany(() => Reserva, (reserva) => reserva.club)
     reservas: Reserva[];
+
+    @Column({ default: false })
+    mercadopagoHabilitado: boolean;
+
+    @Column({ length: 255, nullable: true })
+    mercadopagoAccessToken: string; // token del club, NUNCA se expone al frontend
+
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    precioReserva: number; // monto de la seña
 }
