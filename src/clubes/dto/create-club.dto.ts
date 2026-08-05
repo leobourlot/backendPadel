@@ -1,4 +1,5 @@
 import { IsString, IsNumber, IsNotEmpty, IsOptional, IsEmail, IsBoolean, IsDateString } from 'class-validator';
+import { Type } from 'class-transformer'; // ✅ NUEVO import
 
 export class CreateClubDto {
     @IsString()
@@ -61,6 +62,7 @@ export class CreateClubDto {
     @IsOptional()
     mercadopagoAccessToken?: string;
 
+    @Type(() => Number) // ✅ NUEVO: convierte "5000" a 5000 antes de validar
     @IsNumber()
     @IsOptional()
     precioReserva?: number;
