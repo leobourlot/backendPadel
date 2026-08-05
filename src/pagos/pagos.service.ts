@@ -35,7 +35,8 @@ export class PagosService {
         const mpClient = new MercadoPagoConfig({ accessToken: club.mercadopagoAccessToken });
         const preference = new Preference(mpClient);
 
-        const frontendUrl = process.env.FRONTEND_URL;
+        const dominioBase = process.env.DOMINIO_BASE; // ej: bourderweb.com.ar
+        const frontendUrlDelClub = `https://${club.slug}.${dominioBase}`;
         const backendUrl = process.env.BACKEND_URL;
 
         const result = await preference.create({
@@ -52,9 +53,9 @@ export class PagosService {
                 external_reference: String(reserva.idReserva),
                 notification_url: `${backendUrl}/pagos/webhook?idReserva=${reserva.idReserva}`,
                 back_urls: {
-                    success: `${frontendUrl}/mis-reservas?pago=exitoso`,
-                    failure: `${frontendUrl}/reservas?pago=fallido`,
-                    pending: `${frontendUrl}/mis-reservas?pago=pendiente`,
+                    success: `${frontendUrlDelClub}/mis-reservas?pago=exitoso`,
+                    failure: `${frontendUrlDelClub}/reservas?pago=fallido`,
+                    pending: `${frontendUrlDelClub}/mis-reservas?pago=pendiente`,
                 },
                 auto_return: 'approved',
             },
