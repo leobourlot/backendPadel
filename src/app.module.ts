@@ -26,7 +26,7 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ClubesModule,
