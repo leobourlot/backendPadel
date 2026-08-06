@@ -109,14 +109,28 @@ export class PagosService {
             const ahora = new Date();
             const fechaHoraReserva = new Date(`${reserva.fechaReserva}T${reserva.horaInicio}`);
             const limiteDevolucion = new Date(fechaHoraReserva.getTime() - 24 * 60 * 60 * 1000);
+            console.log('🔍 Cancelación - ahora:', ahora, '| límite:', limiteDevolucion, '| aplica reembolso:', ahora <= limiteDevolucion);
+
 
             if (ahora <= limiteDevolucion) {
                 // Se cancela con más de 1 día de anticipación → reembolso
                 const club = await this.clubesRepository.findOne({ where: { idClub } });
                 if (club?.mercadopagoAccessToken && reserva.idPagoMercadoPago) {
-                    const mpClient = new MercadoPagoConfig({ accessToken: club.mercadopagoAccessToken });
-                    const refundClient = new PaymentRefund(mpClient);
-                    await refundClient.create({ payment_id: Number(reserva.idPagoMercadoPago) });
+                    try {
+                        console.log('💰 Intentando reembolso de payment_id:', reserva.idPagoMercadoPago);
+                        const mpClient = new MercadoPagoConfig({ accessToken: club.mercadopagoAccessToken });
+                        const refundClient = new PaymentRefund(mpClient);
+                        const resultado = await refundClient.create({ payment_id: Number(reserva.idPagoMercadoPago) });
+                        console.log('✅ Reembolso creado:', resultado);
+                    } catch (error) {
+                        console.error('❌ Error al reembolsar en MercadoPago:', error);
+                        throw new BadRequestException('No se pudo procesar el reembolso. Contactá al club.');
+                    }
+                } else {
+                    console.warn('⚠️ No se pudo reembolsar: falta accessToken o idPagoMercadoPago', {
+                        tieneToken: !!club?.mercadopagoAccessToken,
+                        idPago: reserva.idPagoMercadoPago,
+                    });
                 }
                 reserva.estadoPago = 'reembolsado';
             }
