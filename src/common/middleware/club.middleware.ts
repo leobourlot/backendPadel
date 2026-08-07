@@ -31,7 +31,7 @@ export class ClubMiddleware implements NestMiddleware {
             bypassExacto.includes(pathOnly) ||
             bypassRegex.some((r) => r.test(pathOnly));
 
-        console.log('🔍 Path recibido:', pathOnly, '| Es ruta pública:', esRutaPublica); // dejalo un tiempo más para confirmar
+        // console.log('🔍 Path recibido:', pathOnly, '| Es ruta pública:', esRutaPublica); // dejalo un tiempo más para confirmar
 
         if (esRutaPublica) return next();
 
