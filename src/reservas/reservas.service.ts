@@ -5,7 +5,7 @@ import {
     BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Reserva } from './entities/reserva.entity';
 import { CreateReservaDto } from './dto/create-reserva.dto';
 import { UpdateReservaDto } from './dto/update-reserva.dto';
@@ -19,25 +19,51 @@ export class ReservasService {
         private reservasRepository: Repository<Reserva>,
         @InjectRepository(ReservaRecurrente)
         private reservasRecurrentesRepository: Repository<ReservaRecurrente>,
+        private dataSource: DataSource, // 👈 agregamos esto
     ) { }
 
     async create(createReservaDto: CreateReservaDto, idClub: number): Promise<Reserva> {
-        const conflicto = await this.verificarDisponibilidad(
-            createReservaDto.idCancha,
-            createReservaDto.fechaReserva,
-            createReservaDto.horaInicio,
-            createReservaDto.horaFin,
-            idClub,
-        );
-        if (conflicto) {
-            throw new ConflictException('El horario no está disponible');
-        }
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        const reserva = this.reservasRepository.create({
-            ...createReservaDto,
-            idClub,
-        });
-        return await this.reservasRepository.save(reserva);
+        try {
+            // 🔒 Lock: bloqueamos las reservas existentes de esta cancha/fecha
+            // para que ninguna otra transacción pueda leerlas hasta que terminemos.
+            const conflicto = await queryRunner.manager
+                .createQueryBuilder(Reserva, 'reserva')
+                .setLock('pessimistic_write')
+                .where('reserva.idCancha = :idCancha', { idCancha: createReservaDto.idCancha })
+                .andWhere('reserva.idClub = :idClub', { idClub })
+                .andWhere('reserva.fechaReserva = :fecha', { fecha: createReservaDto.fechaReserva })
+                .andWhere('reserva.estado = :estado', { estado: 'confirmada' })
+                .andWhere(
+                    '(reserva.horaInicio < :horaFin AND reserva.horaFin > :horaInicio)',
+                    {
+                        horaInicio: createReservaDto.horaInicio,
+                        horaFin: createReservaDto.horaFin,
+                    },
+                )
+                .getOne();
+
+            if (conflicto) {
+                throw new ConflictException('El horario no está disponible');
+            }
+
+            const reserva = queryRunner.manager.create(Reserva, {
+                ...createReservaDto,
+                idClub,
+            });
+            const guardada = await queryRunner.manager.save(reserva);
+
+            await queryRunner.commitTransaction();
+            return guardada;
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     async findAll(idClub: number): Promise<Reserva[]> {
