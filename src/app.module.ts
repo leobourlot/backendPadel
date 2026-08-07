@@ -5,6 +5,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { HorariosClubModule } from './horarios-club/horarios-club.module'; // ✅ NUEVO
 import { PagosModule } from './pagos/pagos.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 const cors = require('cors');
 import { UsuariosModule } from './usuarios/usuarios.module';
@@ -18,6 +20,10 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // ventana de 60 segundos
+      limit: 20,  // 20 requests por IP cada 60s, como default general
+    }]),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -37,6 +43,12 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
     HorariosClubModule,
     ReservasModule,
     PagosModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {
