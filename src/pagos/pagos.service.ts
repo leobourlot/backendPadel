@@ -123,7 +123,7 @@ export class PagosService {
                         const resultado = await refundClient.create({ payment_id: Number(reserva.idPagoMercadoPago) });
                         // console.log('✅ Reembolso creado:', resultado);
                     } catch (error) {
-                        // console.error('❌ Error al reembolsar en MercadoPago:', error);
+                        console.error('❌ Error al reembolsar en MercadoPago:', error);
                         throw new BadRequestException('No se pudo procesar el reembolso. Contactá al club.');
                     }
                 } else {
