@@ -14,6 +14,7 @@ import { CanchasModule } from './canchas/canchas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { ClubesModule } from './clubes/clubes.module';
+import { ReportesModule } from './reportes/reportes.module'; // ✅ NUEVO
 import { ClubMiddleware } from './common/middleware/club.middleware';
 
 @Module({
@@ -42,7 +43,8 @@ import { ClubMiddleware } from './common/middleware/club.middleware';
     HorariosModule,
     HorariosClubModule,
     ReservasModule,
-    PagosModule
+    PagosModule,
+    ReportesModule, // ✅ NUEVO
   ],
   providers: [
     {
