@@ -51,6 +51,8 @@ export class AuthService {
                 club: {
                     slug: club.slug,
                     nombre: club.nombre,
+                    mercadopagoHabilitado: club.mercadopagoHabilitado,
+                    precioReserva: club.precioReserva,
                 },
             };
         } catch (error: unknown) {
@@ -89,6 +91,8 @@ export class AuthService {
             club: {
                 slug: club.slug,
                 nombre: club.nombre,
+                mercadopagoHabilitado: club.mercadopagoHabilitado,
+                precioReserva: club.precioReserva,
             },
         };
     }
