@@ -5,6 +5,10 @@ import { Repository, LessThan } from 'typeorm';
 import { ReservaRecurrente } from './entities/reserva-recurrente.entity';
 import { Reserva } from './entities/reserva.entity';
 
+function getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+}
+
 @Injectable()
 export class ReservasCronService {
     private readonly logger = new Logger(ReservasCronService.name);
@@ -21,6 +25,8 @@ export class ReservasCronService {
         name: 'regenerar-reservas-recurrentes',
         timeZone: 'America/Argentina/Buenos_Aires', // ← Tu zona horaria
     })
+
+
     async regenerarReservasRecurrentes() {
         this.logger.log('🔄 Iniciando regeneración de reservas recurrentes...');
 
@@ -42,9 +48,8 @@ export class ReservasCronService {
                     totalCreadas += resultado.creadas;
                     totalOmitidas += resultado.omitidas;
                 } catch (error) {
-                    this.logger.error(
-                        `❌ Error procesando recurrente #${recurrente.idReservaRecurrente}: ${error.message}`,
-                    );
+                    this.logger.error(`❌ Error creando reserva: ${getErrorMessage(error)}`);
+
                 }
             }
 
@@ -52,7 +57,7 @@ export class ReservasCronService {
                 `✅ Proceso completado: ${totalCreadas} reservas creadas, ${totalOmitidas} omitidas`,
             );
         } catch (error) {
-            this.logger.error(`❌ Error en regeneración de reservas: ${error.message}`);
+            this.logger.error(`❌ Error creando reserva: ${getErrorMessage(error)}`);
         }
     }
 
@@ -100,6 +105,7 @@ export class ReservasCronService {
                 where: {
                     idUsuario: recurrente.idUsuario,
                     idCancha: recurrente.idCancha,
+                    idClub: recurrente.idClub,
                     fechaReserva: fechaReserva,
                     horaInicio: recurrente.horaInicio,
                     estado: 'confirmada',
@@ -135,6 +141,7 @@ export class ReservasCronService {
                 const nuevaReserva = this.reservasRepository.create({
                     idUsuario: recurrente.idUsuario,
                     idCancha: recurrente.idCancha,
+                    idClub: recurrente.idClub,
                     fechaReserva: fechaReserva,
                     horaInicio: recurrente.horaInicio,
                     horaFin: recurrente.horaFin,
@@ -148,9 +155,8 @@ export class ReservasCronService {
                     `✅ Creada reserva para ${fechaReserva.toISOString().split('T')[0]} - Usuario #${recurrente.idUsuario}`,
                 );
             } catch (error) {
-                this.logger.error(
-                    `❌ Error creando reserva: ${error.message}`,
-                );
+                this.logger.error(`❌ Error creando reserva: ${getErrorMessage(error)}`);
+
                 omitidas++;
             }
         }
@@ -217,7 +223,7 @@ export class ReservasCronService {
                 `✅ Marcadas ${resultado.affected} reservas pasadas como completadas`,
             );
         } catch (error) {
-            this.logger.error(`❌ Error limpiando reservas: ${error.message}`);
+            this.logger.error(`❌ Error creando reserva: ${getErrorMessage(error)}`);
         }
     }
 }
