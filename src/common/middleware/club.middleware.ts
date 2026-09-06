@@ -25,13 +25,12 @@ export class ClubMiddleware implements NestMiddleware {
             /^\/clubes\/con-admin$/,      // crear club + admin (superadmin)
             /^\/clubes\/\d+$/,            // GET/PATCH/DELETE /clubes/:id (superadmin)
             /^\/horarios-club\/\d+$/,     // GET/PUT /horarios-club/:idClub (superadmin)
+            /^\/usuarios\/superadmin(\/todos)?(\/\d+)?$/, // ✅ NUEVO: gestión global de usuarios (superadmin)
         ];
 
         const esRutaPublica =
             bypassExacto.includes(pathOnly) ||
             bypassRegex.some((r) => r.test(pathOnly));
-
-        // console.log('🔍 Path recibido:', pathOnly, '| Es ruta pública:', esRutaPublica); // dejalo un tiempo más para confirmar
 
         if (esRutaPublica) return next();
 

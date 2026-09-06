@@ -31,6 +31,37 @@ export class UsuariosService {
         });
     }
 
+    // ✅ NUEVO: para el panel de superadmin. Devuelve usuarios de TODOS los clubes,
+    // opcionalmente filtrados por idClub, incluyendo el nombre/slug del club de cada uno.
+    async findAllGlobal(idClub?: number): Promise<Usuario[]> {
+        const query = this.usuariosRepository
+            .createQueryBuilder('usuario')
+            .leftJoin('usuario.club', 'club')
+            .select([
+                'usuario.idUsuario',
+                'usuario.dni',
+                'usuario.email',
+                'usuario.nombre',
+                'usuario.apellido',
+                'usuario.telefono',
+                'usuario.rol',
+                'usuario.activo',
+                'usuario.idClub',
+                'usuario.fechaCreacion',
+                'club.idClub',
+                'club.nombre',
+                'club.slug',
+            ])
+            .orderBy('usuario.rol', 'DESC')
+            .addOrderBy('usuario.nombre', 'ASC');
+
+        if (idClub) {
+            query.andWhere('usuario.idClub = :idClub', { idClub });
+        }
+
+        return await query.getMany();
+    }
+
     async findOne(id: number): Promise<Usuario> {
         const usuario = await this.usuariosRepository.findOne({
             where: { idUsuario: id },
@@ -101,8 +132,16 @@ export class UsuariosService {
         return await this.usuariosRepository.save(usuario);
     }
 
-    async remove(id: number): Promise<void> {
+    // ✅ CAMBIADO: ahora respeta el mismo scoping por club que update() (solo cambia
+    // comportamiento si el controller pasa idClubSolicitante/esSuperAdmin explícitamente;
+    // llamadas existentes sin esos argumentos siguen funcionando igual que antes).
+    async remove(id: number, idClubSolicitante?: number, esSuperAdmin?: boolean): Promise<void> {
         const usuario = await this.findOne(id);
+
+        if (!esSuperAdmin && idClubSolicitante && usuario.idClub !== idClubSolicitante) {
+            throw new ForbiddenException('No tenés permiso para eliminar este usuario');
+        }
+
         await this.usuariosRepository.remove(usuario);
     }
 
