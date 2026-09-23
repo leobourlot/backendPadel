@@ -1,5 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PagosController } from './pagos.controller';
 import { PagosService } from './pagos.service';
 import { Reserva } from '../reservas/entities/reserva.entity';
@@ -9,7 +11,14 @@ import { ReservasModule } from '../reservas/reservas.module';
 @Module({
     imports: [
         TypeOrmModule.forFeature([Reserva, Club]),
-        forwardRef(() => ReservasModule), // ✅ cambiado (antes era import directo)
+        forwardRef(() => ReservasModule),
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                secret: configService.get<string>('MP_OAUTH_STATE_SECRET'),
+            }),
+            inject: [ConfigService],
+        }), 
     ],
     controllers: [PagosController],
     providers: [PagosService],

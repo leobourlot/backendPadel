@@ -6,6 +6,7 @@ import { Reserva } from '../reservas/entities/reserva.entity';
 import { Club } from '../clubes/entities/club.entity';
 import { ReservasService } from '../reservas/reservas.service';
 import { CreateReservaDto } from '../reservas/dto/create-reserva.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class PagosService {
@@ -13,6 +14,7 @@ export class PagosService {
         @InjectRepository(Reserva) private reservasRepository: Repository<Reserva>,
         @InjectRepository(Club) private clubesRepository: Repository<Club>,
         private reservasService: ReservasService,
+        private jwtService: JwtService, // ✅ NUEVO
     ) { }
 
     async crearPreferencia(dto: CreateReservaDto, idUsuario: number, club: Club) {
@@ -147,5 +149,91 @@ export class PagosService {
         reserva.estado = 'no_show';
         // estadoPago se mantiene 'pagado' → seña perdida, no hay reembolso
         return await this.reservasRepository.save(reserva);
+    }
+
+    // Genera la URL de autorización de MP para que el admin conecte su cuenta
+    async generarUrlConexionMP(club: Club): Promise<{ url: string }> {
+        const state = this.jwtService.sign({ idClub: club.idClub }, { expiresIn: '10m' });
+        const redirectUri = `${process.env.BACKEND_URL}/pagos/mp/callback`;
+
+        const url =
+            `https://auth.mercadopago.com/authorization` +
+            `?client_id=${process.env.MP_CLIENT_ID}` +
+            `&response_type=code` +
+            `&platform_id=mp` +
+            `&state=${state}` +
+            `&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+        return { url };
+    }
+
+    // Procesa el regreso de MP con el code, y devuelve la URL a la que redirigir el navegador
+    async procesarCallbackMP(code: string, state: string): Promise<string> {
+        let payload: { idClub: number };
+        try {
+            payload = this.jwtService.verify(state);
+        } catch {
+            return `${process.env.BACKEND_URL}?mp=error_state`; // state inválido o vencido (>10 min)
+        }
+
+        const club = await this.clubesRepository.findOne({ where: { idClub: payload.idClub } });
+        if (!club) return `${process.env.BACKEND_URL}?mp=error_club`;
+
+        const frontendUrl = `https://${club.slug}.${process.env.DOMINIO_BASE}/admin/mercadopago`;
+        const redirectUri = `${process.env.BACKEND_URL}/pagos/mp/callback`;
+
+        try {
+            const resp = await fetch('https://api.mercadopago.com/oauth/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    client_secret: process.env.MP_CLIENT_SECRET,
+                    client_id: process.env.MP_CLIENT_ID,
+                    grant_type: 'authorization_code',
+                    code,
+                    redirect_uri: redirectUri,
+                }),
+            });
+            const data = await resp.json();
+
+            if (!resp.ok || !data.access_token) {
+                console.error('❌ Error canjeando code de MP:', data);
+                return `${frontendUrl}?mp=error`;
+            }
+
+            club.mercadopagoAccessToken = data.access_token;   // TODO: encriptar (próxima etapa)
+            club.mercadopagoRefreshToken = data.refresh_token; // TODO: encriptar
+            club.mercadopagoUserId = String(data.user_id);
+            club.mercadopagoTokenExpira = new Date(Date.now() + data.expires_in * 1000);
+            club.mercadopagoHabilitado = true;
+            await this.clubesRepository.save(club);
+
+            return `${frontendUrl}?mp=conectado`;
+        } catch (error) {
+            console.error('❌ Error en callback OAuth de MP:', error);
+            return `${frontendUrl}?mp=error`;
+        }
+    }
+
+    async estadoConexionMP(club: Club) {
+        return {
+            conectado: !!club.mercadopagoAccessToken && club.mercadopagoHabilitado,
+            mercadopagoUserId: club.mercadopagoUserId || null,
+            expiraEl: club.mercadopagoTokenExpira || null,
+        };
+    }
+
+    async desconectarMP(idClub: number) {
+        const club = await this.clubesRepository.findOne({ where: { idClub } });
+        if (!club) return { desconectado: false };
+
+        club.mercadopagoAccessToken = null;
+        club.mercadopagoRefreshToken = null;
+        club.mercadopagoUserId = null;
+        club.mercadopagoTokenExpira = null;
+        club.mercadopagoHabilitado = false;
+        await this.clubesRepository.save(club);
+
+        return { desconectado: true };
     }
 }

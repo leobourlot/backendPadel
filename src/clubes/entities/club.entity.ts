@@ -80,4 +80,13 @@ export class Club {
 
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
     precioReserva: number; // monto de la seña
+
+    @Column({ length: 255, nullable: true })
+    mercadopagoRefreshToken: string; // el access_token de OAuth expira a los 180 días
+
+    @Column({ length: 50, nullable: true })
+    mercadopagoUserId: string; // user_id de MP del vendedor (útil para debug/soporte)
+
+    @Column({ type: 'datetime', nullable: true })
+    mercadopagoTokenExpira: Date;
 }
